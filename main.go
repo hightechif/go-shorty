@@ -176,7 +176,7 @@ func (h *urlHandler) handlePost(w http.ResponseWriter, r *http.Request) {
 
 	// Define a struct for the JSON response.
 	responseData := struct {
-		ShortKey string `json:"short_key"`
+		ShortKey string `json:"shortKey"`
 	}{
 		ShortKey: shortKey,
 	}
