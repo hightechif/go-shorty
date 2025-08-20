@@ -15,16 +15,6 @@ import (
 )
 
 // =======================================================================================
-// Utils
-// =======================================================================================
-func ternary[T any](condition bool, a, b T) T {
-	if condition {
-		return a
-	}
-	return b
-}
-
-// =======================================================================================
 // URLStore Module - This is the core logic from our previous project.
 // It is now thread-safe using a sync.RWMutex to handle concurrent web requests.
 // =======================================================================================
@@ -38,13 +28,21 @@ type URLStore struct {
 
 // Add generates a short key for a long URL and stores it.
 func (s *URLStore) Add(longURL string, customKey *string) (string, error) {
-	// Generate a short, random key.
-	keyBytes := make([]byte, 4)
-	if _, err := rand.Read(keyBytes); err != nil {
-		return "", err
+	var shortKey string
+
+	// 1. Decide which key to use first.
+	if customKey != nil {
+		// Use the provided custom key.
+		shortKey = *customKey
+	} else {
+		// No custom key, so generate a random one.
+		keyBytes := make([]byte, 4)
+		if _, err := rand.Read(keyBytes); err != nil {
+			return "", err // Failed to generate key
+		}
+		shortKey = hex.EncodeToString(keyBytes)
 	}
 
-	shortKey := ternary(customKey != nil, *customKey, hex.EncodeToString(keyBytes))
 	// Lock the map for writing to prevent race conditions.
 	s.mu.Lock()
 	defer s.mu.Unlock()
