@@ -36,19 +36,6 @@ type URLStore struct {
 	filename string
 }
 
-// NewURLStore creates and returns a new URLStore, loading data from a file.
-func NewURLStore(filename string) *URLStore {
-	store := &URLStore{
-		urls:     make(map[string]string),
-		filename: filename,
-	}
-	// Load existing data, but don't block startup if it fails.
-	if err := store.load(); err != nil {
-		log.Printf("Warning: could not load data from %s: %v", filename, err)
-	}
-	return store
-}
-
 // Add generates a short key for a long URL and stores it.
 func (s *URLStore) Add(longURL string, customKey *string) (string, error) {
 	// Generate a short, random key.
@@ -199,6 +186,19 @@ func (h *urlHandler) handlePost(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(responseData)
+}
+
+// NewURLStore creates and returns a new URLStore, loading data from a file.
+func NewURLStore(filename string) *URLStore {
+	store := &URLStore{
+		urls:     make(map[string]string),
+		filename: filename,
+	}
+	// Load existing data, but don't block startup if it fails.
+	if err := store.load(); err != nil {
+		log.Printf("Warning: could not load data from %s: %v", filename, err)
+	}
+	return store
 }
 
 func main() {
